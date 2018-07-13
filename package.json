@@ -1,8 +1,9 @@
 {
-  "name": "recorderjs",
-  "version": "1.0.1",
+  "name": "benz-recorderjs",
+  "version": "1.0.2",
   "description": "Record audio from a node in the Web Audio API",
   "main": "recorder.build.js",
+  "types": "recorder.d.ts",
   "scripts": {
     "build": "browserify \"./recorder.js\" -g workerify -s Recorder > recorder.build.js"
   },
@@ -11,7 +12,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/jergason/Recorderjs.git"
+    "url": "https://github.com/BenzLeung/Recorderjs.git"
   },
   "keywords": [
     "web-audio-api",
@@ -21,9 +22,9 @@
   "author": "Jamison Dance <jergason@gmail.com> (http://jamisondance.com)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/jergason/Recorderjs/issues"
+    "url": "https://github.com/BenzLeung/Recorderjs/issues"
   },
-  "homepage": "https://github.com/jergason/Recorderjs",
+  "homepage": "https://github.com/BenzLeung/Recorderjs",
   "devDependencies": {
     "browserify": "^16.2.2",
     "workerify": "^1.1.0"
