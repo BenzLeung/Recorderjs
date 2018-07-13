@@ -1,5 +1,10 @@
 class Recorder {
-    constructor();
+    constructor(source: AudioBufferSourceNode, config?: {
+        workerPath: 'js/recorderjs/recorderWorker.js',
+        bufferLen: 4096,
+        callback: Function,
+        type: 'audio/wav'
+    });
     public init(stream: MediaStream): Promise<void>;
     public record(): void;
     public stop(): void;
