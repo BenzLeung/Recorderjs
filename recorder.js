@@ -14,10 +14,10 @@ var Recorder = function(source, cfg){
                                                        bufferLen, 2, 2);
   var worker = new Worker((window.URL || window.webkitURL).createObjectURL(new Blob([recorderWorkerStr], {type:"text/javascript"})));
   worker.onmessage = function(e){
-    if (e.data instanceof Blob) {
-        currCallbackWithBlob(e.data);
+    if (e.data.type === 'blob') {
+        currCallbackWithBlob(e.data.data);
     } else {
-        currCallbackWithBuffer(e.data);
+        currCallbackWithBuffer(e.data.data);
     }
   };
 
@@ -82,6 +82,7 @@ var Recorder = function(source, cfg){
     this.clear();
     this.configure = this.record = this.stop = this.clear = this.getBuffer = this.exportWAV = function () {};
     source.disconnect(this.node);
+    this.node.onaudioprocess = null;
     this.node.disconnect();
     worker.terminate();
   };

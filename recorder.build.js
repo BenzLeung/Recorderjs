@@ -3,7 +3,7 @@
     typeof define === 'function' && define.amd ? define(factory) :
     (global.Recorder = factory());
 }(this, (function () {
-    var recorderWorker = function() {
+    var recorderWorker = function () {
 
         var recLength = 0,
             recBuffersL = [],
@@ -11,8 +11,8 @@
             sampleRate;
 
 
-        self.onmessage = function(e) {
-            switch(e.data.command){
+        self.onmessage = function (e) {
+            switch (e.data.command) {
                 case 'init':
                     init(e.data.config);
                     break;
@@ -31,60 +31,63 @@
             }
         };
 
-        function init(config){
+        function init(config) {
             sampleRate = config.sampleRate;
         }
 
-        function record(inputBuffer){
+        function record(inputBuffer) {
             recBuffersL.push(inputBuffer[0]);
             recBuffersR.push(inputBuffer[1]);
             recLength += inputBuffer[0].length;
         }
 
-        function exportWAV(type){
+        function exportWAV(type) {
             var bufferL = mergeBuffers(recBuffersL, recLength);
             var bufferR = mergeBuffers(recBuffersR, recLength);
             var interleaved = interleave(bufferL, bufferR);
             var dataview = encodeWAV(interleaved);
-            var audioBlob = new Blob([dataview], { type: type });
+            var audioBlob = new Blob([dataview], {type: type});
 
             self.postMessage({
                 type: 'blob',
-                blob: audioBlob
+                data: audioBlob
             });
         }
 
         function getBuffer() {
             var buffers = [];
-            buffers.push( mergeBuffers(recBuffersL, recLength) );
-            buffers.push( mergeBuffers(recBuffersR, recLength) );
-            self.postMessage(buffers);
+            buffers.push(mergeBuffers(recBuffersL, recLength));
+            buffers.push(mergeBuffers(recBuffersR, recLength));
+            self.postMessage({
+                type: 'buffer',
+                data: buffers
+            });
         }
 
-        function clear(){
+        function clear() {
             recLength = 0;
             recBuffersL = [];
             recBuffersR = [];
         }
 
-        function mergeBuffers(recBuffers, recLength){
+        function mergeBuffers(recBuffers, recLength) {
             var result = new Float32Array(recLength);
             var offset = 0;
-            for (var i = 0; i < recBuffers.length; i++){
+            for (var i = 0; i < recBuffers.length; i++) {
                 result.set(recBuffers[i], offset);
                 offset += recBuffers[i].length;
             }
             return result;
         }
 
-        function interleave(inputL, inputR){
+        function interleave(inputL, inputR) {
             var length = inputL.length + inputR.length;
             var result = new Float32Array(length);
 
             var index = 0,
                 inputIndex = 0;
 
-            while (index < length){
+            while (index < length) {
                 result[index++] = inputL[inputIndex];
                 result[index++] = inputR[inputIndex];
                 inputIndex++;
@@ -92,20 +95,20 @@
             return result;
         }
 
-        function floatTo16BitPCM(output, offset, input){
-            for (var i = 0; i < input.length; i++, offset+=2){
+        function floatTo16BitPCM(output, offset, input) {
+            for (var i = 0; i < input.length; i++, offset += 2) {
                 var s = Math.max(-1, Math.min(1, input[i]));
                 output.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
             }
         }
 
-        function writeString(view, offset, string){
-            for (var i = 0; i < string.length; i++){
+        function writeString(view, offset, string) {
+            for (var i = 0; i < string.length; i++) {
                 view.setUint8(offset + i, string.charCodeAt(i));
             }
         }
 
-        function encodeWAV(samples){
+        function encodeWAV(samples) {
             var buffer = new ArrayBuffer(44 + samples.length * 2);
             var view = new DataView(buffer);
 
@@ -158,10 +161,10 @@
                                                            bufferLen, 2, 2);
       var worker = new Worker((window.URL || window.webkitURL).createObjectURL(new Blob([recorderWorkerStr], {type:"text/javascript"})));
       worker.onmessage = function(e){
-        if (e.data instanceof Blob) {
-            currCallbackWithBlob(e.data);
+        if (e.data.type === 'blob') {
+            currCallbackWithBlob(e.data.data);
         } else {
-            currCallbackWithBuffer(e.data);
+            currCallbackWithBuffer(e.data.data);
         }
       };
 
@@ -219,6 +222,16 @@
           command: 'exportWAV',
           type: type
         });
+      };
+
+      this.release = function() {
+        this.stop();
+        this.clear();
+        this.configure = this.record = this.stop = this.clear = this.getBuffer = this.exportWAV = function () {};
+        source.disconnect(this.node);
+        this.node.onaudioprocess = null;
+        this.node.disconnect();
+        worker.terminate();
       };
 
       source.connect(this.node);

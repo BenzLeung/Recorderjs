@@ -1,6 +1,6 @@
 {
   "name": "benz-recorderjs",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Record audio from a node in the Web Audio API",
   "main": "recorder.build.js",
   "types": "recorder.d.ts",
@@ -13,8 +13,7 @@
   },
   "keywords": [
     "web-audio-api",
-    "record",
-    "browserify"
+    "record"
   ],
   "author": "Jamison Dance <jergason@gmail.com> (http://jamisondance.com)",
   "license": "MIT",
