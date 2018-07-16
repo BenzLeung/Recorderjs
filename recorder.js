@@ -9,8 +9,11 @@ var Recorder = function(source, cfg){
                                                        bufferLen, 2, 2);
   var worker = new Worker(WORKER_PATH);
   worker.onmessage = function(e){
-    var blob = e.data;
-    currCallback(blob);
+    if (e.data instanceof Blob) {
+        currCallbackWithBlob(e.data);
+    } else {
+        currCallbackWithBuffer(e.data);
+    }
   }
 
   worker.postMessage({
@@ -20,7 +23,8 @@ var Recorder = function(source, cfg){
     }
   });
   var recording = false,
-    currCallback;
+    currCallbackWithBuffer,
+    currCallbackWithBlob;
 
   this.node.onaudioprocess = function(e){
     if (!recording) return;
@@ -54,14 +58,14 @@ var Recorder = function(source, cfg){
   }
 
   this.getBuffer = function(cb) {
-    currCallback = cb || config.callback;
+    currCallbackWithBuffer = cb || config.callback;
     worker.postMessage({ command: 'getBuffer' })
   }
 
   this.exportWAV = function(cb, type){
-    currCallback = cb || config.callback;
+    currCallbackWithBlob = cb || config.callback;
     type = type || config.type || 'audio/wav';
-    if (!currCallback) throw new Error('Callback not set');
+    if (!currCallbackWithBlob) throw new Error('Callback not set');
     worker.postMessage({
       command: 'exportWAV',
       type: type
