@@ -1,5 +1,5 @@
 class Recorder {
-    constructor(source: AudioBufferSourceNode, config?: {
+    constructor(stream: MediaStreamAudioSourceNode, config?: {
         workerPath?: string,
         bufferLen?: number,
         callback?: Function,
