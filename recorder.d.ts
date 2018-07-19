@@ -1,4 +1,4 @@
-class Recorder {
+declare class Recorder {
     constructor(stream: MediaStreamAudioSourceNode, config?: {
         workerPath?: string,
         bufferLen?: number,

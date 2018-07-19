@@ -1,6 +1,6 @@
 {
   "name": "benz-recorderjs",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Record audio from a node in the Web Audio API",
   "main": "recorder.build.js",
   "types": "recorder.d.ts",
